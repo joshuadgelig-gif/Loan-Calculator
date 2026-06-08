@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bankways Loan & Net Proceeds Calculator</title>
+    
+    <style>
+        :root {
+            --forest-green: #2B6636;
+            --lime-green: #8DC63F;
+            --dark-text: #212529;
+            --light-bg: #F4F7F4;
+            --border-color: #E2E8F0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .calculator-container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(43, 102, 54, 0.1);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculator-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(43, 102, 54, 0.15);
+        }
+
+        /* Simplified Text Branding Header */
+        .app-header {
+            background-color: #ffffff;
+            padding: 28px 24px;
+            text-align: center;
+            border-bottom: 4px solid var(--lime-green);
+        }
+
+        .brand-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--forest-green);
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* Input Form Elements */
+        .app-body {
+            padding: 28px 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--forest-green);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-prefix {
+            position: absolute;
+            left: 16px;
+            font-weight: 600;
+            color: #94A3B8;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: 500;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            outline: none;
+            background-color: #F8FAFC;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--dark-text);
+        }
+
+        input[type="text"] {
+            padding-left: 36px;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--forest-green);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(43, 102, 54, 0.1);
+        }
+
+        input[readonly] {
+            background-color: #E2E8F0;
+            color: #475569;
+            cursor: not-allowed;
+            font-weight: 600;
+        }
+
+        .action-btn {
+            width: 100%;
+            background-color: var(--forest-green);
+            color: #ffffff;
+            border: none;
+            padding: 15px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.2s ease;
+            margin-top: 8px;
+            margin-bottom: 16px;
+        }
+
+        .action-btn:hover {
+            background-color: #1e4a26;
+        }
+
+        .results-panel {
+            background-color: #F4FBF4;
+            border: 1px solid rgba(43, 102, 54, 0.12);
+            border-radius: 14px;
+            padding: 24px 22px;
+            text-align: center;
+        }
+
+        .results-panel.blue-panel {
+            background-color: #F0F7FF;
+            border: 1px solid rgba(14, 116, 144, 0.12);
+        }
+
+        .results-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748B;
+            margin-bottom: 8px;
+        }
+
+        .amortization-amount {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--forest-green);
+            display: inline-block;
+        }
+
+        .blue-panel .amortization-amount {
+            color: #0E7490;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #475569;
+            padding: 12px 0;
+            border-top: 1px dashed rgba(43, 102, 54, 0.15);
+        }
+
+        .breakdown-row span:last-child {
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+
+        .rate-highlight {
+            color: var(--forest-green) !important;
+            font-weight: 700 !important;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--forest-green);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 24px 0 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <div class="app-header">
+            <div class="brand-title">BANKWAYS INC.</div>
+            <span class="brand-subtitle">(A Rural Bank)</span>
+        </div>
+
+        <div class="section-title">Loan Amortization</div>
+
+        <div class="app-body">
+            <div class="form-group">
+                <label for="principal">Loan Principal Amount</label>
+                <div class="input-wrapper">
+                    <input type="text" id="principal" placeholder="0.00" inputmode="decimal">
+                    <span class="currency-prefix">₱</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="months">Loan Term</label>
+                <select id="months">
+                    <option value="12">12 Months</option>
+                    <option value="24">24 Months</option>
+                    <option value="36" selected>36 Months</option>
+                    <option value="48">48 Months</option>
+                    <option value="60">60 Months</option>
+                </select>
+            </div>
+
+            <div class="results-panel">
+                <div class="results-title">Amort'n Due (Monthly)</div>
+                <div class="amortization-amount" id="monthly-payment">₱0.00</div>
+                
+                <div class="breakdown-row" style="margin-top: 20px;">
+                    <span>Total Repayment:</span>
+                    <span id="total-repayment">₱0.00</span>
+                </div>
+
+                <div class="breakdown-row">
+                    <span>Total Interest:</span>
+                    <span id="total-interest">₱0.00</span>
+                </div>
+
+                <div class="breakdown-row">
+                    <span>Interest Rate (per annum):</span>
+                    <span id="interest-rate" class="rate-highlight">0.0000%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="calculator-container">
+        <div class="section-title" style="padding-top: 24px;">Net Proceeds Calculator</div>
+        
+        <div class="app-body" style="padding-top: 16px;">
+            <div class="form-group">
+                <label for="proceeds-total-balance">Total Balance</label>
+                <div class="input-wrapper">
+                    <input type="text" id="proceeds-total-balance" placeholder="0.00" inputmode="decimal">
+                    <span class="currency-prefix">₱</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="proceeds-total-finance">Total Finance</label>
+                <div class="input-wrapper">
+                    <input type="text" id="proceeds-total-finance" placeholder="0.00" readonly>
+                    <span class="currency-prefix">₱</span>
+                </div>
+            </div>
+
+            <button class="action-btn" onclick="calculateNetProceeds()">Calculate Net Proceeds</button>
+
+            <div class="results-panel blue-panel">
+                <div class="results-title">Calculated Net Proceeds</div>
+                <div class="amortization-amount" id="net-proceeds-display">₱0.00</div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const factorialRates = {
+            "12": 1.041089003,
+            "24": 1.096433815,
+            "36": 1.153253506,
+            "48": 1.206002251,
+            "60": 1.260228966
+        };
+
+        const principalInput = document.getElementById('principal');
+        const monthsSelect = document.getElementById('months');
+        const monthlyPaymentDisplay = document.getElementById('monthly-payment');
+        const totalRepaymentDisplay = document.getElementById('total-repayment');
+        const totalInterestDisplay = document.getElementById('total-interest');
+        const interestRateDisplay = document.getElementById('interest-rate');
+
+        const proceedsTotalBalanceInput = document.getElementById('proceeds-total-balance');
+        const proceedsTotalFinanceInput = document.getElementById('proceeds-total-finance');
+        const netProceedsDisplay = document.getElementById('net-proceeds-display');
+
+        function formatCurrency(amount) {
+            return '₱' + amount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function calculateAmortization() {
+            let rawValue = principalInput.value.replace(/,/g, '');
+            const principal = parseFloat(rawValue);
+            const totalMonths = parseInt(monthsSelect.value);
+            
+            if (isNaN(principal) || principal <= 0) {
+                monthlyPaymentDisplay.innerText = "₱0.00";
+                totalRepaymentDisplay.innerText = "₱0.00";
+                totalInterestDisplay.innerText = "₱0.00";
+                interestRateDisplay.innerText = "0.0000%";
+                return;
+            }
+
+            const factorialRate = factorialRates[totalMonths];
+            const exactMonthly = (principal * factorialRate) / totalMonths;
+            const roundedMonthlyAmortization = Math.round(exactMonthly * 100) / 100;
+            
+            const totalRepayment = roundedMonthlyAmortization * totalMonths;
+            const totalInterestAccumulated = totalRepayment - principal;
+            
+            const years = totalMonths / 12;
+            const perAnnumRate = ((totalInterestAccumulated / principal) / years) * 100;
+
+            monthlyPaymentDisplay.innerText = formatCurrency(roundedMonthlyAmortization);
+            totalRepaymentDisplay.innerText = formatCurrency(totalRepayment);
+            totalInterestDisplay.innerText = formatCurrency(totalInterestAccumulated);
+            interestRateDisplay.innerText = perAnnumRate.toFixed(4) + "%";
+            
+            if (proceedsTotalBalanceInput.value !== '') {
+                calculateNetProceeds();
+            }
+        }
+
+        function calculateNetProceeds() {
+            let rawPrincipal = principalInput.value.replace(/,/g, '');
+            let rawTotalBalance = proceedsTotalBalanceInput.value.replace(/,/g, '');
+
+            const pLoanAmount = parseFloat(rawPrincipal);
+            const totalBalance = parseFloat(rawTotalBalance);
+
+            if (isNaN(pLoanAmount) || pLoanAmount <= 0) {
+                alert("Please enter a valid Loan Principal Amount in the first card first.");
+                return;
+            }
+
+            if (isNaN(totalBalance)) {
+                netProceedsDisplay.innerText = "₱0.00";
+                proceedsTotalFinanceInput.value = "0.00";
+                return;
+            }
+
+            const principalSixPercent = pLoanAmount * 0.06;
+            const totalFinance = totalBalance + principalSixPercent;
+            
+            proceedsTotalFinanceInput.value = totalFinance.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            const netProceeds = pLoanAmount - totalFinance;
+            netProceedsDisplay.innerText = formatCurrency(netProceeds);
+        }
+
+        function setupCurrencyMask(inputElement, callback) {
+            inputElement.addEventListener('input', function(e) {
+                let cursorPosition = this.selectionStart;
+                let originalLength = this.value.length;
+                let cleanValue = this.value.replace(/[^0-9.]/g, '');
+                let points = cleanValue.split('.');
+                
+                if (points.length > 2) cleanValue = points[0] + '.' + points.slice(1).join('');
+                if (points[1] && points[1].length > 2) cleanValue = points[0] + '.' + points[1].slice(0, 2);
+
+                if (cleanValue && cleanValue !== '.') {
+                    let parts = cleanValue.split('.');
+                    parts[0] = parseFloat(parts[0]).toLocaleString('en-US');
+                    this.value = parts.join('.');
+                } else {
+                    this.value = cleanValue;
+                }
+
+                let newLength = this.value.length;
+                cursorPosition = cursorPosition + (newLength - originalLength);
+                this.setSelectionRange(cursorPosition, cursorPosition);
+
+                if(callback) callback();
+            });
+        }
+
+        setupCurrencyMask(principalInput, calculateAmortization);
+        setupCurrencyMask(proceedsTotalBalanceInput, calculateNetProceeds);
+        monthsSelect.addEventListener('change', calculateAmortization);
+    </script>
+</body>
+</html>
